@@ -48,40 +48,10 @@ func checkLogin(login string) (string, bool) {
 }
 
 func checkPass(pass string, pass2 string) (string, bool) {
-	isUpperLetter := false
-	isDownLetter := false
-	isDigit := false
-	isSymbol := false
-
 	for _, r := range pass {
 		if unicode.Is(unicode.Latin, r) {
 			return "Пароль содержит латиницу", false
 		}
-		if unicode.IsUpper(r) {
-			isUpperLetter = true
-		} else if unicode.IsLetter(r) {
-			isDownLetter = true
-		} else if unicode.IsDigit(r) {
-			isDigit = true
-		} else {
-			isSymbol = true
-		}
-	}
-
-	if !isDownLetter {
-		return "Пароль не содержит незаглавную букву", false
-	}
-
-	if !isUpperLetter {
-		return "Пароль не содержит заглавную букву", false
-	}
-
-	if !isSymbol {
-		return "Пароль не содержит спецсимвола", false
-	}
-
-	if !isDigit {
-		return "Пароль не содержит цифру", false
 	}
 
 	if utf8.RuneCountInString(pass) < 7 {

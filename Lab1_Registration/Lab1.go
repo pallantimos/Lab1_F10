@@ -69,7 +69,7 @@ func checkPass(pass string, pass2 string) (string, bool) {
 	}
 
 	if !isDownLetter {
-		return "Пароль не содержит незаглавную букву", false
+		return "Пароль не содержит строчную букву", false
 	}
 
 	if !isUpperLetter {

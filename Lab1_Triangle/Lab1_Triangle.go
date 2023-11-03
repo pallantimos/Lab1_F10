@@ -2,38 +2,69 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 )
 
-func CalculateKindTriangle(lengthA string, lengthB string, lengthC string) (kindTriangle string, coordinate [3][2]int) {
-	floatLengthA, err := strconv.ParseFloat(lengthA, 64)
-	floatLengthB, err := strconv.ParseFloat(lengthB, 64)
-	floatLengthC, err := strconv.ParseFloat(lengthC, 64)
-
-	if floatLengthA+floatLengthB > floatLengthC || floatLengthA+floatLengthC > floatLengthB || floatLengthB+floatLengthC > floatLengthA {
-		return "не треугольник", coordinate
-	}
-	if floatLengthA == floatLengthB && floatLengthB == floatLengthC {
-		return "равносторонний", coordinate
-	} else if floatLengthA == floatLengthB || floatLengthB == floatLengthC || floatLengthC == floatLengthA {
-		coordinate := [3][2]int{
-			{0, 0},
-			{50, 100},
-			{100, 0},
-		}
-		return "равнобедренный", coordinate
-	} else {
-		return "разносторонний", coordinate
-	}
-
+func GetTriangleInfo(sideA, sideB, sideC string) (string, []Coordinate) {
+	a, err := strconv.ParseFloat(sideA, 64)
 	if err != nil {
-		fmt.Println("Ошибка при конвертации", err)
-		coordinate := [3][2]int{
-			{-2, -2},
-			{-2, -2},
-			{-2, -2},
-		}
-		return "", coordinate
+		return "", []Coordinate{{-2, -2}, {-2, -2}, {-4, -2}}
 	}
-	return kindTriangle, coordinate
+
+	b, err := strconv.ParseFloat(sideB, 64)
+	if err != nil {
+		return "", []Coordinate{{-2, -2}, {-2, -2}, {-4, -2}}
+	}
+
+	c, err := strconv.ParseFloat(sideC, 64)
+	if err != nil {
+		return "", []Coordinate{{-2, -2}, {-2, -2}, {-4, -2}}
+	}
+
+	triangleType := GetTriangleType(a, b, c)
+	triangleVertices := GetTriangleVertices(a, b, c)
+
+	return triangleType, triangleVertices
+}
+
+func GetTriangleType(a, b, c float64) string {
+	if a < 0 || b <= 0 || c < 0 {
+		return ""
+	} else if a+b <= c || a+c < b || b+c <= a {
+		return "не треугольник"
+	} else if a == b && b == c {
+		return "равнобедренный"
+	} else if a == b && b != c || a != c {
+		return "равносторонний"
+	} else {
+		return "разносторонний"
+	}
+}
+
+func GetTriangleVertices(a, b, c float64) []Coordinate {
+	// A (угол между b и c)
+	xA := 0
+	yA := 0
+
+	// B (угол между a и c)
+	xB := int(c)
+	yB := 0
+
+	// C (угол между a и b)
+	cosA := (b*b + c*c - a*a) / (2 * b * c)
+	xC := int(b * cosA)
+	yC := int(b * math.Sqrt(1-cosA*cosA))
+
+	return []Coordinate{{xA, yA}, {xB, yB}, {xC, yC}}
+}
+
+func main() {
+	triangleType, triangleVertices := GetTriangleInfo("3", "4", "5")
+	fmt.Println("Тип треугольника:", triangleType)
+	fmt.Println("Вершины треугольника:", triangleVertices)
+}
+
+type Coordinate struct {
+	X, Y int
 }

@@ -1,4 +1,4 @@
-module github.com/pallantimos/Lab1_F10
+module github.com/pallantimos/Lab1_F10/Lab1_Registration
 
 go 1.20
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -34,14 +35,28 @@ func checkLogin(login string) (string, bool) {
 
 	}
 
-	if utf8.RuneCountInString(login) < 5 {
-		return "Логин меньше 5 символов ", false
+	if login == "" {
+		return "Пустая строка в качества логина", false
 	}
 
-	regex := regexp.MustCompile("^[a-zA-Z0-9_]+$")
+	if utf8.RuneCountInString(login) < 5 {
+		return "Логин меньше 5 символов", false
+	}
 
-	if !regex.MatchString(login) {
-		return "Логин содержит некорректные символы ", false
+	reLogin := regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString(login)
+	reMail := regexp.MustCompile(`^\w+@\w+\.\w+$`).MatchString(login)
+	rePhone := regexp.MustCompile(`^\+\d{1,3}-\d{3}-\d{3}-\d{4}$`).MatchString(login)
+
+	if containsPlus := strings.Contains(login, "+"); containsPlus && !rePhone {
+		return "Номер телефона не удовлетворяет заданному формату +x-xxx-xxx-xxxx", false
+	}
+
+	if containsAt := strings.Contains(login, "@"); containsAt && !reMail {
+		return "Email не удовлетворяет общему формату xxx@xxx.xxx", false
+	}
+
+	if !reLogin && !reMail && !rePhone {
+		return "Логин содержит символы, отличные от латиницы, цифр и знака подчеркивания", false
 	}
 
 	return "", true
@@ -52,6 +67,10 @@ func checkPass(pass string, pass2 string) (string, bool) {
 	isDownLetter := false
 	isDigit := false
 	isSymbol := false
+
+	if pass == "" || pass2 == "" {
+		return "Пустая строка в качестве пароля", false
+	}
 
 	for _, r := range pass {
 		if unicode.Is(unicode.Latin, r) {
@@ -85,11 +104,11 @@ func checkPass(pass string, pass2 string) (string, bool) {
 	}
 
 	if utf8.RuneCountInString(pass) < 7 {
-		return "Пароль меньше 7 символов ", false
+		return "Пароль меньше 7 символов", false
 	}
 
 	if pass != pass2 {
-		return "Пароли не совпадают ", false
+		return "Пароли не совпадают", false
 	}
 
 	return "", true
@@ -114,11 +133,11 @@ func main() {
 	log.Info("Введено значение логина: ", login)
 
 	print("Введите пароль:\n")
-	fmt.Scan(&pass) // <PASSWORD>
+	fmt.Scan(&pass)
 	log.Info("Введено значение пароля: ", pass)
 
 	print("Повторите пароль:\n")
-	fmt.Scan(&pass2) // <PASSWORD>
+	fmt.Scan(&pass2)
 	log.Info("Введено значение повторного пароля: ", pass2)
 
 	errorRegistrate, isCorrect := checkRegistrate(login, pass, pass2)
